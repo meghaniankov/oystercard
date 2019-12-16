@@ -41,9 +41,14 @@ describe OysterCard do
 
   describe '#tap_in' do
     it 'changes in_use from false to true' do
+      subject.top_up(OysterCard::MIN_FARE)
       subject.tap_in
       expect(subject.in_use).to eq true
     end
+
+    it 'raises and error if balance is below minimum fare' do
+      expect { subject.tap_in }.to raise_error "Balance below minimum fare of #{OysterCard::MIN_FARE}"
+    end 
   end
 
   describe '#tap_out' do
@@ -55,15 +60,29 @@ describe OysterCard do
 
   describe '#journey?' do
     it 'returns true if in_use is true' do
+      subject.top_up(OysterCard::MIN_FARE)
       subject.tap_in
       expect(subject.journey?).to eq true
     end
 
     it 'returns false if in_use is false' do
+      subject.top_up(OysterCard::MIN_FARE)
       subject.tap_in
       subject.tap_out
       expect(subject.journey?).to eq false
     end
   end
+
+  describe '#insufficient_balance' do
+    it 'returns true if balance is less than MIN_FARE' do
+      subject.top_up(OysterCard::MIN_FARE - 1)
+      expect(subject.insufficient_balance).to eq true 
+    end
+
+    it 'returns false if balance is greater than MIN_FARE' do
+      subject.top_up(OysterCard::MIN_FARE + 1)
+      expect(subject.insufficient_balance).to eq false 
+    end
+  end 
 
 end 

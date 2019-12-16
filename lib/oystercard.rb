@@ -1,5 +1,6 @@
 class OysterCard
   MAX_LIMIT = 90
+  MIN_FARE = 1
   attr_reader :balance, :in_use
 
   def initialize
@@ -21,6 +22,7 @@ class OysterCard
   end 
 
   def tap_in
+    fail "Balance below minimum fare of #{MIN_FARE}" if insufficient_balance 
     @in_use = true
   end
 
@@ -31,4 +33,8 @@ class OysterCard
   def journey?
     @in_use
   end
+
+  def insufficient_balance 
+    @balance < MIN_FARE
+  end 
 end
