@@ -38,4 +38,32 @@ describe OysterCard do
     end 
   end 
 
+
+  describe '#tap_in' do
+    it 'changes in_use from false to true' do
+      subject.tap_in
+      expect(subject.in_use).to eq true
+    end
+  end
+
+  describe '#tap_out' do
+    it 'changes in_use from true to false' do
+      subject.tap_out
+      expect(subject.in_use).to eq false
+    end
+  end
+
+  describe '#journey?' do
+    it 'returns true if in_use is true' do
+      subject.tap_in
+      expect(subject.journey?).to eq true
+    end
+
+    it 'returns false if in_use is false' do
+      subject.tap_in
+      subject.tap_out
+      expect(subject.journey?).to eq false
+    end
+  end
+
 end 
