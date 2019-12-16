@@ -1,9 +1,15 @@
 require 'oystercard'
 describe OysterCard do
   let(:station) {double :station}
+  let(:entry_station) { double :station }
+  let(:exit_station) { double :station }
 
   it 'has initial balance of 0' do
     expect(subject.balance).to eq 0
+  end
+
+  it 'initializes with empty array for journey history' do
+    expect(subject.journey_history).to eq []
   end
 
   describe '#top_up' do
@@ -37,12 +43,12 @@ describe OysterCard do
       expect { subject.tap_in(station) }.to raise_error "Balance below minimum fare of #{OysterCard::MIN_FARE}"
     end 
     
-    
     it 'sets the entry station' do
       subject.top_up(OysterCard::MIN_FARE)
       subject.tap_in(station)
       expect(subject.entry_station).to eq station
     end 
+
 
   end
 
@@ -52,15 +58,29 @@ describe OysterCard do
     it 'decreases balance by MIN_FARE when tapping out' do
       subject.top_up(OysterCard::MIN_FARE)
       subject.tap_in(station)
-      expect { subject.tap_out }.to change {subject.balance }.by(-OysterCard::MIN_FARE)
+      expect { subject.tap_out(station) }.to change {subject.balance }.by(-OysterCard::MIN_FARE)
     end
 
     it 'sets entry station to nil' do
       subject.top_up(OysterCard::MIN_FARE)
       subject.tap_in(station)
-      subject.tap_out 
+      subject.tap_out(station) 
       expect(subject.entry_station).to eq nil
     end 
+
+    it 'sets exit station' do
+      subject.top_up(OysterCard::MIN_FARE)
+      subject.tap_in(station)
+      subject.tap_out(station)
+      expect(subject.exit_station).to eq station
+    end
+
+    it 'adds hash of entry and exit stations to journey history array' do
+      subject.top_up(OysterCard::MIN_FARE)
+      subject.tap_in(station)
+      subject.tap_out(station)
+      expect(subject.journey_history).to include(:entry_station => subject.entry_station, :exit_station => subject.exit_station)
+    end
   end
 
   describe '#journey?' do
@@ -71,9 +91,9 @@ describe OysterCard do
       expect(subject.journey?).to eq true
     end
 
-    it 'returns false if in_use is false' do
+    it 'returns false if not in use' do
       subject.tap_in(station)
-      subject.tap_out
+      subject.tap_out(station)
       expect(subject.journey?).to eq false
     end
   end
