@@ -1,5 +1,6 @@
 require 'oystercard'
 describe OysterCard do
+  let(:station) {double :station}
 
   it 'has initial balance of 0' do
     expect(subject.balance).to eq 0
@@ -32,40 +33,46 @@ describe OysterCard do
 
   describe '#tap_in' do
 
-    it 'changes in_use from false to true' do
-      subject.top_up(OysterCard::MIN_FARE)
-      subject.tap_in
-      expect(subject.in_use).to eq true
-    end
-
     it 'raises and error if balance is below minimum fare' do
-      expect { subject.tap_in }.to raise_error "Balance below minimum fare of #{OysterCard::MIN_FARE}"
+      expect { subject.tap_in(station) }.to raise_error "Balance below minimum fare of #{OysterCard::MIN_FARE}"
     end 
+    
+    
+    it 'sets the entry station' do
+      subject.top_up(OysterCard::MIN_FARE)
+      subject.tap_in(station)
+      expect(subject.entry_station).to eq station
+    end 
+
   end
 
   describe '#tap_out' do
-    it 'changes in_use from true to false' do
-      subject.tap_out
-      expect(subject.in_use).to eq false
-    end
+    
 
     it 'decreases balance by MIN_FARE when tapping out' do
       subject.top_up(OysterCard::MIN_FARE)
-      subject.tap_in
+      subject.tap_in(station)
       expect { subject.tap_out }.to change {subject.balance }.by(-OysterCard::MIN_FARE)
     end
+
+    it 'sets entry station to nil' do
+      subject.top_up(OysterCard::MIN_FARE)
+      subject.tap_in(station)
+      subject.tap_out 
+      expect(subject.entry_station).to eq nil
+    end 
   end
 
   describe '#journey?' do
     before { subject.top_up(OysterCard::MIN_FARE) }
 
     it 'returns true if in_use is true' do
-      subject.tap_in
+      subject.tap_in(station)
       expect(subject.journey?).to eq true
     end
 
     it 'returns false if in_use is false' do
-      subject.tap_in
+      subject.tap_in(station)
       subject.tap_out
       expect(subject.journey?).to eq false
     end

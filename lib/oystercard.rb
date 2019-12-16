@@ -1,11 +1,13 @@
+require_relative 'station'
+
 class OysterCard
   MAX_LIMIT = 90
   MIN_FARE = 1
-  attr_reader :balance, :in_use
+  attr_reader :balance, :entry_station
 
   def initialize
     @balance = 0
-    @in_use = false
+    @entry_station = nil
   end
 
   def top_up(amount)
@@ -13,18 +15,19 @@ class OysterCard
     @balance += amount 
   end 
 
-  def tap_in
+  def tap_in(station)
     fail "Balance below minimum fare of #{MIN_FARE}" if insufficient_balance 
-    @in_use = true
+    @entry_station = station 
   end
 
   def tap_out
     deduct(MIN_FARE)
-    @in_use = false
+    @entry_station = nil 
+
   end
 
   def journey?
-    @in_use
+    @entry_station == nil ? false : true 
   end
 
   def exceeds_limit(amount)
