@@ -1,5 +1,6 @@
 require 'oystercard'
 describe OysterCard do
+
   it 'has initial balance of 0' do
     expect(subject.balance).to eq 0
   end
@@ -29,17 +30,8 @@ describe OysterCard do
 
   end
 
-  describe '#deduct' do
-    it { is_expected.to respond_to(:deduct).with(1).argument }
-
-    it 'deducts 5 from the balance' do
-      subject.top_up(10)
-      expect { subject.deduct(5) }.to change {subject.balance }.by(-5)
-    end 
-  end 
-
-
   describe '#tap_in' do
+
     it 'changes in_use from false to true' do
       subject.top_up(OysterCard::MIN_FARE)
       subject.tap_in
@@ -56,17 +48,23 @@ describe OysterCard do
       subject.tap_out
       expect(subject.in_use).to eq false
     end
+
+    it 'decreases balance by MIN_FARE when tapping out' do
+      subject.top_up(OysterCard::MIN_FARE)
+      subject.tap_in
+      expect { subject.tap_out }.to change {subject.balance }.by(-OysterCard::MIN_FARE)
+    end
   end
 
   describe '#journey?' do
+    before { subject.top_up(OysterCard::MIN_FARE) }
+
     it 'returns true if in_use is true' do
-      subject.top_up(OysterCard::MIN_FARE)
       subject.tap_in
       expect(subject.journey?).to eq true
     end
 
     it 'returns false if in_use is false' do
-      subject.top_up(OysterCard::MIN_FARE)
       subject.tap_in
       subject.tap_out
       expect(subject.journey?).to eq false
