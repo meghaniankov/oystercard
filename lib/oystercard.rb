@@ -15,5 +15,9 @@ class OysterCard
     amount > MAX_LIMIT
   end
 
+  def deduct(fare)
+    @balance -= fare
+  end 
+
 
 end
