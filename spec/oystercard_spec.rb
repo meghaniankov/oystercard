@@ -1,8 +1,9 @@
 require 'oystercard'
 describe OysterCard do
-  let(:station) {double :station}
-  let(:entry_station) { double :entry_station }
-  let(:exit_station) { double :exit_station }
+  let(:station) {double :station, :station_name => "Paddington", :zone => 1}
+  let(:journey) { double :journey }
+  let(:entry_station) { double :entry_station, :station_name => "Paddington", :zone => 1 }
+  let(:exit_station) { double :exit_station, :station_name => "Kings Cross", :zone => 3 }
 
   it 'has initial balance of 0' do
     expect(subject.balance).to eq 0
@@ -40,15 +41,8 @@ describe OysterCard do
   describe '#tap_in' do
 
     it 'raises and error if balance is below minimum fare' do
-      expect { subject.tap_in(station) }.to raise_error "Balance below minimum fare of #{OysterCard::MIN_FARE}"
+      expect { subject.tap_in(station) }.to raise_error "Balance below minimum fare of #{Journey::MIN_FARE}"
     end 
-    
-    it 'sets the entry station' do
-      subject.top_up(OysterCard::MIN_FARE)
-      subject.tap_in(station)
-      expect(subject.entry_station).to eq station
-    end 
-
 
   end
 
@@ -56,56 +50,30 @@ describe OysterCard do
     
 
     it 'decreases balance by MIN_FARE when tapping out' do
-      subject.top_up(OysterCard::MIN_FARE)
+      subject.top_up(Journey::MIN_FARE)
       subject.tap_in(station)
-      expect { subject.tap_out(station) }.to change {subject.balance }.by(-OysterCard::MIN_FARE)
-    end
-
-    it 'sets entry station to nil' do
-      subject.top_up(OysterCard::MIN_FARE)
-      subject.tap_in(station)
-      subject.tap_out(station) 
-      expect(subject.entry_station).to eq nil
-    end 
-
-    it 'sets exit station' do
-      subject.top_up(OysterCard::MIN_FARE)
-      subject.tap_in(station)
-      subject.tap_out(station)
-      expect(subject.exit_station).to eq station
+      expect { subject.tap_out(station) }.to change {subject.balance }.by(-Journey::MIN_FARE)
     end
 
     it 'adds hash of entry and exit stations to journey history array' do
-      subject.top_up(OysterCard::MIN_FARE)
-      subject.tap_in(entry_station)
-      subject.tap_out(exit_station)
-      expect(subject.journey_history).to eq [{entry_station: entry_station, exit_station: exit_station}]
+      subject.top_up(Journey::MIN_FARE)
+      subject.tap_in(station1)
+      subject.tap_out(station2)
+      # expect(subject.journey_history).to eq [{entry_station: subject.journey.entry_station, exit_station: subject.journey.exit_station}]
+      expect(subject.journey_history).to eq [{entry_station: station1, exit_station: station2}]
+
     end
   end
 
-  describe '#journey?' do
-    before { subject.top_up(OysterCard::MIN_FARE) }
-
-    it 'returns true if in_use is true' do
-      subject.tap_in(station)
-      expect(subject.journey?).to eq true
-    end
-
-    it 'returns false if not in use' do
-      subject.tap_in(station)
-      subject.tap_out(station)
-      expect(subject.journey?).to eq false
-    end
-  end
 
   describe '#insufficient_balance' do
     it 'returns true if balance is less than MIN_FARE' do
-      subject.top_up(OysterCard::MIN_FARE - 1)
+      subject.top_up(Journey::MIN_FARE - 1)
       expect(subject.insufficient_balance).to eq true 
     end
 
     it 'returns false if balance is greater than MIN_FARE' do
-      subject.top_up(OysterCard::MIN_FARE + 1)
+      subject.top_up(Journey::MIN_FARE + 1)
       expect(subject.insufficient_balance).to eq false 
     end
   end 
@@ -117,7 +85,7 @@ describe OysterCard do
     end
 
     it 'saves a journey hash inside journey_history' do
-      subject.top_up(OysterCard::MIN_FARE + 1)
+      subject.top_up(Journey::MIN_FARE + 1)
       subject.tap_in(entry_station)
       subject.tap_out(exit_station)
       expect(subject.journey_history).to include journey
