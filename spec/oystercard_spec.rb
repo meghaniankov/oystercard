@@ -110,4 +110,18 @@ describe OysterCard do
     end
   end 
 
+  describe '#journey_history' do
+    let(:journey){ {entry_station: entry_station, exit_station: exit_station} }
+    it 'initializes with empty array of journeys' do
+      expect(subject.journey_history).to be_empty
+    end
+
+    it 'saves a journey hash inside journey_history' do
+      subject.top_up(OysterCard::MIN_FARE + 1)
+      subject.tap_in(entry_station)
+      subject.tap_out(exit_station)
+      expect(subject.journey_history).to include journey
+    end
+  end
+
 end 
