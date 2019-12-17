@@ -1,8 +1,8 @@
 require 'oystercard'
 describe OysterCard do
   let(:station) {double :station}
-  let(:entry_station) { double :station }
-  let(:exit_station) { double :station }
+  let(:entry_station) { double :entry_station }
+  let(:exit_station) { double :exit_station }
 
   it 'has initial balance of 0' do
     expect(subject.balance).to eq 0
@@ -77,9 +77,9 @@ describe OysterCard do
 
     it 'adds hash of entry and exit stations to journey history array' do
       subject.top_up(OysterCard::MIN_FARE)
-      subject.tap_in(station)
-      subject.tap_out(station)
-      expect(subject.journey_history).to include(:entry_station => subject.entry_station, :exit_station => subject.exit_station)
+      subject.tap_in(entry_station)
+      subject.tap_out(exit_station)
+      expect(subject.journey_history).to eq [{entry_station: entry_station, exit_station: exit_station}]
     end
   end
 
