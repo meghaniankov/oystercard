@@ -56,11 +56,13 @@ describe OysterCard do
     end
 
     it 'adds hash of entry and exit stations to journey history array' do
+      allow(station).to receive(:station_name) { "Paddington" }
+      allow(station).to receive(:zone) { 1 }
       subject.top_up(Journey::MIN_FARE)
-      subject.tap_in(station1)
-      subject.tap_out(station2)
-      # expect(subject.journey_history).to eq [{entry_station: subject.journey.entry_station, exit_station: subject.journey.exit_station}]
-      expect(subject.journey_history).to eq [{entry_station: station1, exit_station: station2}]
+      subject.tap_in(station)
+      subject.tap_out(station)
+      station_array = [station.station_name, station.zone]
+      expect(subject.journey_history).to eq [{entry_station: station_array, exit_station: station_array}]
 
     end
   end
@@ -86,9 +88,9 @@ describe OysterCard do
 
     it 'saves a journey hash inside journey_history' do
       subject.top_up(Journey::MIN_FARE + 1)
-      subject.tap_in(entry_station)
-      subject.tap_out(exit_station)
-      expect(subject.journey_history).to include journey
+      subject.tap_in(station)
+      subject.tap_out(station)
+      expect(subject.journey_history.any? {|journey| journey[:entry_station] == ["Paddington", 1] }).to eq true
     end
   end
 
