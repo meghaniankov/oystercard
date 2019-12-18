@@ -54,7 +54,7 @@ describe OysterCard do
       subject.tap_in(station)
       expect { subject.tap_out(station) }.to change {subject.balance }.by(-Journey::MIN_FARE)
     end
-
+  
     it 'adds hash of entry and exit stations to journey history array' do
       allow(station).to receive(:station_name) { "Paddington" }
       allow(station).to receive(:zone) { 1 }

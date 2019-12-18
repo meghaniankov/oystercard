@@ -1,30 +1,32 @@
 require_relative 'oystercard'
 
-
 class Journey
   MIN_FARE = 1
   FARE_PENALTY = 6
-attr_accessor :entry_station, :exit_station
+attr_accessor :journey
 
   def initialize
-    @entry_station = []
-    @exit_station = []
-    @entry_station_details = []
-    @exit_station_details = []
+    @journey = {entry_station: nil, exit_station: nil}
+    # @entry_station = []
+    # @exit_station = []
   end
 
+
   def start_journey(station)
-    @entry_station << station.station_name
-    @entry_station << station.zone
+    @journey[:entry_station] = [station.station_name, station.zone]
+    # @entry_station << station.station_name
+    # @entry_station << station.zone
   end
 
   def finish_journey(station)
-    @exit_station << station.station_name
-    @exit_station << station.zone
+    @journey[:exit_station] = [station.station_name, station.zone]
+    # @exit_station << station.station_name
+    # @exit_station << station.zone
   end
 
   def complete?
-   !@entry_station.empty? && !@exit_station.empty?
+  @journey[:entry_station] != nil && @journey[:exit_station] != nil
+  #  !@entry_station.empty? && !@exit_station.empty?
   end
 
   def fare

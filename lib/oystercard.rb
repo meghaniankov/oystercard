@@ -24,7 +24,7 @@ class OysterCard
   end
 
   def add_to_journey
-    @journey_history << {entry_station: @current_journey.entry_station, exit_station: @current_journey.exit_station}
+    @journey_history << @current_journey.journey
   end
 
   def tap_out(station)
